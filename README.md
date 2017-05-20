@@ -1,3 +1,7 @@
+Tested on linux, but should be straighforward on the tin cans, and workable on the other one.
+
+**Requirements:** CMake, SDL2, GNU Tools/Make stack
+
 - Setup Sym-links to sources in MPLAB project:
     - badge_apps.h, badgelandia.c, screensaver.c, utils.c, utils.h
 - Generate a make file:
