@@ -1,0 +1,6 @@
+- Setup Sym-links to sources in MPLAB project:
+    - badge_apps.h, badgelandia.c, screensaver.c, utils.c, utils.h
+- Generate a make file:
+    - Run: ```cmake CMakeLists.txt```
+- Build
+    - Run: ```make```
