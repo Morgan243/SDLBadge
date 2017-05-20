@@ -15,8 +15,9 @@
 //test_badge_app(NULL);
 //badgelandia_task(NULL);
 
-//#define APP_UNDER_TEST badgelandia_task
-#define APP_UNDER_TEST screensaver_task
+#define APP_UNDER_TEST badgelandia_task
+//#define APP_UNDER_TEST screensaver_task
+
 
 void test_badge_app(void *p_arg){
     uint i = 0;
