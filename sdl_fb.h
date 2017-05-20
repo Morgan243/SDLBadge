@@ -17,11 +17,10 @@ struct vector32_t {
 #define LCD_XSIZE WIDTH
 #define LCD_YSIZE HEIGHT
 
-#define SDL_BADGE
 #ifdef SDL_BADGE
 #define portTICK_PERIOD_MS 1
 #define TickType_t uint32_t
-#define vTaskDelay(tick_rate) SDL_Delay(tick_rate*2)
+#define vTaskDelay(tick_rate) SDL_Delay(tick_rate*15)
 #endif
 struct sdl_context
 {
@@ -45,9 +44,8 @@ struct sdl_context
     unsigned char color_depth;
     unsigned char status;
     SDL_mutex *status_lock;
-
-
 };
+
 #define SIN(x) sin(x)
 #define COS(x) cos(x)
 #define PI 3.141

@@ -13,23 +13,6 @@
 #include "SDL2/SDL_image.h"
 #include "colors.h"
 
-void rand_pixels(struct sdl_context *sdl_cxt,
-                    unsigned int num_pixels)
-{
-    unsigned int x = 0;
-    unsigned int y = 0;
-
-    x = rand() % sdl_cxt->width;
-    y = rand() % sdl_cxt->height;
-    SDL_SetRenderDrawColor(sdl_cxt->renderer,
-                           (uint8_t) (rand() % 255),
-                           (uint8_t) (rand() % 255),
-                           (uint8_t) (rand() % 255),
-                           255);
-    SDL_RenderDrawPoint(sdl_cxt->renderer, x, y);
-}
-
-
 void write_buffer_pixel(struct sdl_context *sdl_cxt,
                         unsigned int x, unsigned int y,
                         uint8_t r, uint8_t g, uint8_t b, uint8_t a)
@@ -348,31 +331,53 @@ void FbSwapBuffers()
     G_Fb.pos.y = 0;
 }
 
-
-void equilateral_polygon_points(short point_arr[][2],
-                                float radius,
-                                unsigned int n_sides,
-                                float rotate_rads)
+void FbPushBuffer()
 {
-    unsigned int n;
-    float delta_rad = 0.0, rads = 0.0;
+       unsigned int i, j;
 
-    if(n_sides < 3){
-        //led(1, 0, 0);
-        return;
-    }
+    //debug("FbWriteLine");
 
-    delta_rad = TWO_PI/(float)n_sides;
+    if (G_Fb.changed == 0) return;
 
-    for(n=0; n < (n_sides); n++)
-    {
-        // Nth vertex
-        rads = (delta_rad * (float)(n)) + rotate_rads;
+    update_from_texture(&G_Fb);
 
-        point_arr[n][1] = (radius * SIN(rads));
-        point_arr[n][0] = (radius * COS(rads));
-    }
+    SDL_RenderCopy( G_Fb.renderer, G_Fb.texture, NULL, NULL );
+
+    SDL_RenderPresent(G_Fb.renderer);
+
+    //S6B33_rect(0, 0, LCD_XSIZE-1, LCD_YSIZE-1);
+    //for (i=0; i<LCD_XSIZE; i++) {
+    //    for(j=0; j<LCD_YSIZE; j++){
+    //        BUFFER(BUFFER_INDEX(G_Fb, i, j)) = 0;
+    //    }
+    //}
+    //update_from_texture(&G_Fb);
+    FbClear();
+        //S6B33_pixel(BUFFER(i));
+        //BUFFER(i) = G_Fb.BGcolor; /* clear buffer as we go */
+    //}
+    G_Fb.changed = 0;
+
+    G_Fb.pos.x = 0;
+    G_Fb.pos.y = 0;
+
+//    unsigned int i;
+//
+//    //debug("FbWriteLine");
+//
+//    if (G_Fb.changed == 0) return;
+//
+//    S6B33_rect(0, 0, LCD_XSIZE-1, LCD_YSIZE-1);
+//    for (i=0; i<(LCD_XSIZE * LCD_YSIZE); i++) {
+//        S6B33_pixel(BUFFER(i));
+//        //BUFFER(i) = G_Fb.BGcolor; /* clear buffer as we go */
+//    }
+//    G_Fb.changed = 0;
+//
+//    G_Fb.pos.x = 0;
+//    G_Fb.pos.y = 0;
 }
+
 
 void FbPolygonFromPoints(short points[][2],
                          unsigned char n_points,
@@ -414,4 +419,5 @@ void FbPolygonFromPoints(short points[][2],
                (unsigned char)x1, (unsigned char)y1);
 
 }
+
 
