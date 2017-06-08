@@ -68,6 +68,19 @@ int handle_events(void *p){
                             G_button_cnt = 0;
                             REMOVE_FROM_MASK(G_pressed_button, SOLO_BTN_MASK);
                             break;
+
+                        case SDL_SCANCODE_I:
+                            G_up_touch_cnt = 0;
+                            REMOVE_FROM_MASK(G_pressed_button, SOLO_BTN_MASK);
+                            break;
+                        case SDL_SCANCODE_J:
+                            G_middle_touch_cnt = 0;
+                            REMOVE_FROM_MASK(G_pressed_button, SOLO_BTN_MASK);
+                            break;
+                        case SDL_SCANCODE_N:
+                            G_down_touch_cnt = 0;
+                            REMOVE_FROM_MASK(G_pressed_button, SOLO_BTN_MASK);
+                            break;
                     }
 
                 case SDL_KEYDOWN:
@@ -111,6 +124,34 @@ int handle_events(void *p){
                                 G_button_cnt = 0;
                                 REMOVE_FROM_MASK(G_pressed_button, SOLO_BTN_MASK);
                            }
+                            break;
+
+                        case SDL_SCANCODE_I:
+                            if(G_up_touch_cnt < 255)
+                                G_up_touch_cnt++;
+                           else {
+                                G_up_touch_cnt = 0;
+                                REMOVE_FROM_MASK(G_pressed_button, UP_TOUCH_MASK);
+                           }
+                            break;
+
+                        case SDL_SCANCODE_J:
+                             if(G_middle_touch_cnt < 255)
+                                G_middle_touch_cnt++;
+                             else {
+                                G_middle_touch_cnt = 0;
+                                 REMOVE_FROM_MASK(G_pressed_button, MIDDLE_TOUCH_MASK);
+                                //REMOVE_FROM_MASK(G_pressed_button, SOLO_BTN_MASK);
+                             }
+                            break;
+                        case SDL_SCANCODE_N:
+                             if(G_down_touch_cnt < 255)
+                                G_down_touch_cnt++;
+                             else {
+                                G_down_touch_cnt = 0;
+                                 REMOVE_FROM_MASK(G_pressed_button, DOWN_TOUCH_MASK);
+                                //REMOVE_FROM_MASK(G_pressed_button, SOLO_BTN_MASK);
+                             }
                             break;
                         default:
                             G_left_button_cnt = G_right_button_cnt = G_up_button_cnt = G_down_button_cnt = G_button_cnt = 0;

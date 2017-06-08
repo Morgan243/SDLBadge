@@ -16,6 +16,7 @@ struct vector32_t {
 #define HEIGHT 132
 #define LCD_XSIZE WIDTH
 #define LCD_YSIZE HEIGHT
+#define setNote(freq, len) NULL
 
 #ifdef SDL_BADGE
 #define portTICK_PERIOD_MS 1
@@ -125,6 +126,8 @@ void FbClear();
 void FbColor(uint32_t color);
 void FbBackgroundColor(uint32_t color);
 void FbTransparency(unsigned short transparencyMask);
+void FbTransparentIndex(unsigned short color);
+void FbImage(unsigned char assetId, unsigned char seqNum);
 void FbSprite(unsigned char picId, unsigned char imageNo);
 void FbCharacter(unsigned char charin);
 void FbFilledRectangle(uint32_t width, uint32_t height);
@@ -139,6 +142,12 @@ void FbRectangle(unsigned char width, unsigned char height);
 //TODO: doesn't work!
 void FbPushRegion(unsigned int x, unsigned int y,
                   unsigned int width,unsigned int height);
+
+void FbDrawVectors(short points[][2],
+                   unsigned char n_points,
+                   short center_x,
+                   short center_y,
+                   unsigned char connect_last_to_first);
 
 // Connects together a set of (x,y) points
 void FbPolygonFromPoints(short points[][2],

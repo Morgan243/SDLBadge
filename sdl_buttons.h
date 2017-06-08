@@ -83,7 +83,6 @@ extern char G_touch_pct;
 
 void button_task(void *p_arg);
 
-
 int handle_events(void *p);
 
 
