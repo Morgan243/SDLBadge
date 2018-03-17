@@ -9,3 +9,5 @@ groundwar.c
 screensaver.c
 utils.c
 utils.h
+ctf_pig_pen.c
+flash_test.h
