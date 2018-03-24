@@ -80,6 +80,9 @@ int construct_sdl_context(struct sdl_context *sdl_cxt)
     int bpp = 32;
     //int bpp = 16;
 
+    sdl_cxt->width = WIDTH;
+    sdl_cxt->height = HEIGHT;
+
     //just init the sdl video stuff
     SDL_Init(SDL_INIT_VIDEO);
 
