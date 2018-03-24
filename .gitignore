@@ -1,13 +1,1 @@
-assetList.h
-badge_apps.h
 badge_firmware
-badgelandia.c
-badge_menu.c
-badge_menu.h
-boot_splash.c
-groundwar.c
-screensaver.c
-utils.c
-utils.h
-ctf_pig_pen.c
-flash_test.h
