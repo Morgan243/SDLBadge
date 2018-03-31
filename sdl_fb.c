@@ -37,9 +37,14 @@ void write_buffer_pixel32(struct sdl_context *sdl_cxt,
 {
     uint32_t offset = BUFFER_INDEX((*sdl_cxt), x, y);
 
-    sdl_cxt->buffer[ offset + 0 ] = (uint8_t) ((color & RED)>>24);
-    sdl_cxt->buffer[ offset + 1 ] = (uint8_t) ((color & GREEN)>>16);//g;
-    sdl_cxt->buffer[ offset + 2 ] = (uint8_t) ((color & BLUE)>>8);//b;
+    //sdl_cxt->buffer[ offset + 0 ] = (uint8_t) ((color & RED)>>24);
+    //sdl_cxt->buffer[ offset + 1 ] = (uint8_t) ((color & GREEN)>>16);//g;
+    //sdl_cxt->buffer[ offset + 2 ] = (uint8_t) ((color & BLUE)>>8);//b;
+    //sdl_cxt->buffer[ offset + 3 ] = alpha;    // a
+
+    sdl_cxt->buffer[ offset + 0 ] = (uint8_t) ((color & BLUE));//b;
+    sdl_cxt->buffer[ offset + 1 ] = (uint8_t) ((color & GREEN)>>8);//g;
+    sdl_cxt->buffer[ offset + 2 ] = (uint8_t) ((color & RED)>>16);
     sdl_cxt->buffer[ offset + 3 ] = alpha;    // a
 }
 
@@ -105,6 +110,7 @@ int construct_sdl_context(struct sdl_context *sdl_cxt)
                                         SDL_TEXTUREACCESS_STREAMING,
                                         sdl_cxt->width, sdl_cxt->height);
 
+    // Depth is in bytes-per-pixel: SDL will use 32 bit
     sdl_cxt->color_depth = 4;
     //create a local buffer
     sdl_cxt->buffer = malloc(sizeof(unsigned char) * (WIDTH * HEIGHT * sdl_cxt->color_depth));
@@ -182,16 +188,23 @@ void FbClear()
     }
 
     SDL_SetRenderDrawColor(G_Fb.renderer,
-                          (uint8_t) ((G_Fb.BGcolor & RED)>>24),
-                          (uint8_t) ((G_Fb.BGcolor & GREEN)>>16),
-                          (uint8_t) ((G_Fb.BGcolor & BLUE)>>8),
+                          (uint8_t) ((G_Fb.BGcolor & RED)>>16),
+                          (uint8_t) ((G_Fb.BGcolor & GREEN)>>8),
+                          (uint8_t) ((G_Fb.BGcolor & BLUE)),
                           SDL_ALPHA_OPAQUE);
     SDL_RenderClear(G_Fb.renderer);
 }
 
 void FbColor(uint32_t color)
 {
-    G_Fb.color = color;
+    //G_Fb.color = color;
+
+    // Shift up a little more to make it brighter
+    uint32_t port_color = ((UNPACKR(color)<<19)
+                         | (UNPACKG(color)<<10)
+                         | (UNPACKB(color)<<3));
+
+    G_Fb.color = port_color;
 }
 
 void FbBackgroundColor(uint32_t color)
@@ -254,7 +267,7 @@ void FbImage4bit(unsigned char assetId, unsigned char seqNum)
 {
     unsigned char y, yEnd, x;
     unsigned char *pixdata, pixbyte, ci, *cmap, r, g, b;
-    unsigned short pixel;
+    unsigned int pixel;
 
     /* clip to end of LCD buffer */
     yEnd = G_Fb.pos.y + assetList[assetId].y;
@@ -278,15 +291,23 @@ void FbImage4bit(unsigned char assetId, unsigned char seqNum)
                 g = cmap[1];
                 b = cmap[2];
 
-                pixel = ((((r >> 3) & 0b11111) << REDSHIFT )
-                         |  (((g >> 3) & 0b11111) <<  GREENSHIFT )
-                         |  (((b >> 3) & 0b11111)       )) ;
+                //pixel = ((((r >> 3) & 0b11111) << REDSHIFT )
+                //         |  (((g >> 3) & 0b11111) <<  GREENSHIFT )
+                //         |  (((b >> 3) & 0b11111)       )) ;
+                pixel = (((r ) << REDSHIFT )
+                         |  ((g  ) <<  GREENSHIFT )
+                         |  ((b )       )) ;
 
                 /* G_Fb.pos.x == offset into scan buffer */
                 if (G_Fb.transMask > 0)
-                    BUFFER(y * LCD_XSIZE + x + G_Fb.pos.x) = (BUFFER(x + G_Fb.pos.x) & (~G_Fb.transMask)) | (pixel & G_Fb.transMask);
+                    //BUFFER(y * LCD_XSIZE + x + G_Fb.pos.x) = (BUFFER(x + G_Fb.pos.x) & (~G_Fb.transMask)) | (pixel & G_Fb.transMask);
+                    write_buffer_pixel32(&G_Fb, x, y,
+                                         pixel, SDL_ALPHA_OPAQUE);
                 else
-                    BUFFER(y * LCD_XSIZE + x + G_Fb.pos.x) = pixel;
+                    //BUFFER(y * LCD_XSIZE + x + G_Fb.pos.x) = pixel;
+                    write_buffer_pixel32(&G_Fb, x, y,
+                                         pixel, SDL_ALPHA_OPAQUE);
+
             }
             x++;
 
@@ -301,15 +322,22 @@ void FbImage4bit(unsigned char assetId, unsigned char seqNum)
                 g = cmap[1];
                 b = cmap[2];
 
-                pixel = ((((r >> 3) & 0b11111) << REDSHIFT )
-                         |  (((g >> 3) & 0b11111) <<  GREENSHIFT )
-                         |  (((b >> 3) & 0b11111)       )) ;
+                //pixel = ((((r >> 3) & 0b11111) << REDSHIFT )
+                //         |  (((g >> 3) & 0b11111) <<  GREENSHIFT )
+                //         |  (((b >> 3) & 0b11111)       )) ;
+                pixel = (((r ) << REDSHIFT )
+                         |  ((g ) <<  GREENSHIFT )
+                         |  ((b )       )) ;
 
                 /* G_Fb.pos.x == offset into scan buffer */
                 if (G_Fb.transMask > 0)
-                    BUFFER(y * LCD_XSIZE + x + G_Fb.pos.x) = (BUFFER(x + G_Fb.pos.x) & (~G_Fb.transMask)) | (pixel & G_Fb.transMask);
+                    //BUFFER(y * LCD_XSIZE + x + G_Fb.pos.x) = (BUFFER(x + G_Fb.pos.x) & (~G_Fb.transMask)) | (pixel & G_Fb.transMask);
+                    write_buffer_pixel32(&G_Fb, x, y,
+                                         pixel, SDL_ALPHA_OPAQUE);
                 else
-                    BUFFER(y * LCD_XSIZE + x + G_Fb.pos.x) = pixel;
+                    //BUFFER(y * LCD_XSIZE + x + G_Fb.pos.x) = pixel;
+                    write_buffer_pixel32(&G_Fb, x, y,
+                                         pixel, SDL_ALPHA_OPAQUE);
             }
             x++;
         }

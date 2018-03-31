@@ -4,9 +4,17 @@
 
 #ifndef BASICSDLBADGE_COLORS_H
 #define BASICSDLBADGE_COLORS_H
-#define BLUE    0x0000FF00
-#define GREEN   0x00FF0000
-#define RED     0xFF000000
+
+//ALPHA at end
+//#define BLUE    0x0000FF00
+//#define GREEN   0x00FF0000
+//#define RED     0xFF000000
+
+// ALPHA at front
+#define BLUE    0x000000FF
+#define GREEN   0x0000FF00
+#define RED     0x00FF0000
+
 //#define B_BLUE    0b0000000000011111
 //#define B_GREEN   0b0000011111100000
 //#define B_RED     0b1111100000000000
