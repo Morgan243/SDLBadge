@@ -11,6 +11,7 @@
 //#define APP_UNDER_TEST boot_splash_task
 //#define APP_UNDER_TEST groundwar_task
 #define APP_UNDER_TEST badgelandia_task
+//#define APP_UNDER_TEST badgey_bird_task
 //#define APP_UNDER_TEST screensaver_task
 
 
