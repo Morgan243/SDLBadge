@@ -33,19 +33,14 @@ void write_buffer_pixel(struct sdl_context *sdl_cxt,
 void write_buffer_pixel32(struct sdl_context *sdl_cxt,
                         uint32_t x, uint32_t y,
                         uint32_t color, uint8_t alpha)
-                        //uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
     uint32_t offset = BUFFER_INDEX((*sdl_cxt), x, y);
+    SDL_PixelFormat *fmt = sdl_cxt->surface->format;
 
-    //sdl_cxt->buffer[ offset + 0 ] = (uint8_t) ((color & RED)>>24);
-    //sdl_cxt->buffer[ offset + 1 ] = (uint8_t) ((color & GREEN)>>16);//g;
-    //sdl_cxt->buffer[ offset + 2 ] = (uint8_t) ((color & BLUE)>>8);//b;
-    //sdl_cxt->buffer[ offset + 3 ] = alpha;    // a
-
-    sdl_cxt->buffer[ offset + 0 ] = (uint8_t) ((color & BLUE));//b;
-    sdl_cxt->buffer[ offset + 1 ] = (uint8_t) ((color & GREEN)>>8);//g;
-    sdl_cxt->buffer[ offset + 2 ] = (uint8_t) ((color & RED)>>16);
-    sdl_cxt->buffer[ offset + 3 ] = alpha;    // a
+    sdl_cxt->buffer[ offset + 0 ] = (uint8_t) ((color & fmt->Bmask));
+    sdl_cxt->buffer[ offset + 1 ] = (uint8_t) ((color & fmt->Gmask)>>fmt->Gshift);
+    sdl_cxt->buffer[ offset + 2 ] = (uint8_t) ((color & fmt->Rmask)>>fmt->Rshift);
+    sdl_cxt->buffer[ offset + 3 ] = alpha;
 }
 
 void rand_pixels_stream(struct sdl_context *sdl_cxt,
@@ -160,7 +155,6 @@ int update_from_texture(struct sdl_context *sdl_cxt)
         );
 }
 
-//void set_global_sdl_cxt(struct sdl_context *sdl_cxt){
 
 struct sdl_context *G_Fb_ptr;
 ///////////------
@@ -179,6 +173,7 @@ void FbClear()
     G_Fb.pos.y = 0;
     G_Fb.changed = 1; //lol
     uint32_t x, y;
+    SDL_PixelFormat *fmt = G_Fb.surface->format;
 
     for(x=0; x < G_Fb.width; x++){
         for(y=0; y < G_Fb.height; y++){
@@ -188,28 +183,35 @@ void FbClear()
     }
 
     SDL_SetRenderDrawColor(G_Fb.renderer,
-                          (uint8_t) ((G_Fb.BGcolor & RED)>>16),
-                          (uint8_t) ((G_Fb.BGcolor & GREEN)>>8),
-                          (uint8_t) ((G_Fb.BGcolor & BLUE)),
+                          (uint8_t) ((G_Fb.BGcolor & fmt->Rmask)>>fmt->Rshift),
+                          (uint8_t) ((G_Fb.BGcolor & fmt->Gmask)>>fmt->Gshift),
+                          (uint8_t) ((G_Fb.BGcolor & fmt->Bmask)),
                           SDL_ALPHA_OPAQUE);
     SDL_RenderClear(G_Fb.renderer);
 }
 
+// Shift up a little more to make it brighter
+#define SDL_BRIGHT_SHIFT (unsigned char) 2
+uint32_t port_badge_color_to_sdl_color(uint32_t color)
+{
+    SDL_PixelFormat *fmt = G_Fb.surface->format;
+
+    // The badge has an extra bit for green, so in port,
+    // make use of extra head room in SDL and give more to R and B
+    return ((UNPACKR(color)<<(fmt->Rshift + SDL_BRIGHT_SHIFT + 1))
+          | (UNPACKG(color)<<(fmt->Gshift + SDL_BRIGHT_SHIFT))
+          | (UNPACKB(color)<<(fmt->Bshift + SDL_BRIGHT_SHIFT + 1)));
+
+}
+
 void FbColor(uint32_t color)
 {
-    //G_Fb.color = color;
-
-    // Shift up a little more to make it brighter
-    uint32_t port_color = ((UNPACKR(color)<<19)
-                         | (UNPACKG(color)<<10)
-                         | (UNPACKB(color)<<3));
-
-    G_Fb.color = port_color;
+    G_Fb.color = port_badge_color_to_sdl_color(color);
 }
 
 void FbBackgroundColor(uint32_t color)
 {
-    G_Fb.BGcolor = color;
+    G_Fb.BGcolor = port_badge_color_to_sdl_color(color);
 }
 
 void FbTransparentIndex(unsigned short color)
@@ -478,19 +480,22 @@ void FbImage1bit(unsigned char assetId, unsigned char seqNum)
                 if ((bit + G_Fb.pos.x) > (LCD_XSIZE-1)) continue; /* clip x */
 
                 ci = ((pixbyte >> bit) & 0x1); /* ci = color index */
-                if (ci != G_Fb.transIndex) { // transparent?
-                    if (ci == 0) {
-                        if (G_Fb.transMask > 0)
-                            BUFFER(y * LCD_XSIZE + x + G_Fb.pos.x + bit) = (BUFFER(y * LCD_XSIZE + x + G_Fb.pos.x + bit) & (~G_Fb.transMask)) | (G_Fb.BGcolor & G_Fb.transMask);
-                        else
-                            BUFFER(y * LCD_XSIZE + x + G_Fb.pos.x + bit) = G_Fb.BGcolor;
-                    } else {
-                        if (G_Fb.transMask > 0)
-                            BUFFER(y * LCD_XSIZE + x + G_Fb.pos.x + bit) = (BUFFER(y * LCD_XSIZE + x + G_Fb.pos.x + bit) & (~G_Fb.transMask)) | (G_Fb.color & G_Fb.transMask);
-                        else
-                            BUFFER(y * LCD_XSIZE + x + G_Fb.pos.x + bit) = G_Fb.color;
-                    }
-                }
+                if(ci != 0)
+                    write_buffer_pixel32(&G_Fb, x + G_Fb.pos.x + bit, y,
+                                         G_Fb.color, SDL_ALPHA_OPAQUE);
+//                if (ci != G_Fb.transIndex) { // transparent?
+//                    if (ci == 0) {
+//                        if (G_Fb.transMask > 0)
+//                            BUFFER(y * LCD_XSIZE + x + G_Fb.pos.x + bit) = (BUFFER(y * LCD_XSIZE + x + G_Fb.pos.x + bit) & (~G_Fb.transMask)) | (G_Fb.BGcolor & G_Fb.transMask);
+//                        else
+//                            BUFFER(y * LCD_XSIZE + x + G_Fb.pos.x + bit) = G_Fb.BGcolor;
+//                    } else {
+//                        if (G_Fb.transMask > 0)
+//                            BUFFER(y * LCD_XSIZE + x + G_Fb.pos.x + bit) = (BUFFER(y * LCD_XSIZE + x + G_Fb.pos.x + bit) & (~G_Fb.transMask)) | (G_Fb.color & G_Fb.transMask);
+//                        else
+//                            BUFFER(y * LCD_XSIZE + x + G_Fb.pos.x + bit) = G_Fb.color;
+//                    }
+//                }
             }
         }
     }
@@ -596,8 +601,50 @@ void FbLine(unsigned char x0, unsigned char y0, unsigned char x1, unsigned char 
 }
 
 void FbCharacter(unsigned char charin){
-    printf("FbCharacter not implemented in SDL Badge\n");
+    /*
+	massaged from Jon's LCD code.
+    */
+    if (charin >= 'a' && charin <= 'z')
+	charin -= 97;
+    else {
+	if (charin >= 'A' && charin <= 'Z')
+		charin -= 65;
+	else {
+	    if (charin >= '0' && charin <= '9')
+		charin -= 22;
+	    else {
+		switch (charin) {
+		case '.':
+		    charin = 36;
+		    break;
 
+		case ':':
+		    charin = 37;
+		    break;
+
+		case '!':
+		    charin = 38;
+		    break;
+
+		case '-':
+		    charin = 39;
+		    break;
+
+		case '_':
+		    charin = 40;
+		    break;
+
+		default:
+		    charin = 41;
+		}
+	    }
+	}
+    }
+    FbImage1bit(FONT, charin);
+
+    /* advance x pos, but not y */
+    // FbMove(G_Fb.pos.x + assetList[G_Fb.font].x, G_Fb.pos.y);
+    G_Fb.changed = 1;
 }
 
 void FbWriteLine(unsigned char *string)
@@ -610,8 +657,8 @@ void FbWriteLine(unsigned char *string)
     y = G_Fb.pos.y;
 
     for(j=0; string[j] != 0; j++) {
-        //FbMove(x + j * assetList[G_Fb.font].x, y);
-        //FbCharacter(string[j]);
+        FbMove(x + j * assetList[FONT].x, y);
+        FbCharacter(string[j]);
     }
     G_Fb.changed = 1;
 

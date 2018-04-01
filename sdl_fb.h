@@ -21,7 +21,7 @@ struct vector32_t {
 #ifdef SDL_BADGE
 #define portTICK_PERIOD_MS 1
 #define TickType_t uint32_t
-#define vTaskDelay(tick_rate) SDL_Delay(tick_rate*15)
+#define vTaskDelay(tick_rate) SDL_Delay(tick_rate*5)
 #endif
 struct sdl_context
 {
@@ -52,6 +52,10 @@ struct sdl_context
 #define PI 3.141
 #define TWO_PI 6.282
 
+
+#define SDL32_BLUE    0x000000FF
+#define SDL32_GREEN   0x0000FF00
+#define SDL32_RED     0x00FF0000
 
 #define BUFFER_INDEX(CXT, X, Y)  ((CXT.width * CXT.color_depth * Y) + X * CXT.color_depth)
 #define SET_GLOBAL_SDL_CXT(SDL_CXT) G_Fb_ptr = SDL_CXT;
