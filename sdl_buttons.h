@@ -38,7 +38,7 @@ extern unsigned int G_entropy_pool;
 #define REMOVE_FROM_MASK(V, MASK) (V &= (~MASK))
 #define CHECK_THEN_ADD_TO_MASK(V, MASK) (!IN_MASK(V, MASK) && ADD_TO_MASK(V, MASK))
 
-#define DEFAULT_BTN_DBC 2
+#define DEFAULT_BTN_DBC 1
 // '*_CONSUME' macros return True once for each single
 // button press, no matter how long the button is held
 #define BUTTON_PRESSED_AND_CONSUME (G_button_cnt > DEFAULT_BTN_DBC && CHECK_THEN_ADD_TO_MASK(G_pressed_button, SOLO_BTN_MASK))
@@ -68,7 +68,7 @@ extern unsigned char G_middle_touch_cnt;
 extern unsigned char G_down_touch_cnt;
 extern char G_touch_pct;
 
-#define DEFAULT_TOUCH_DBC 2
+#define DEFAULT_TOUCH_DBC 1
 #define DOWN_TOUCH_AND_CONSUME (G_down_touch_cnt > DEFAULT_TOUCH_DBC  && CHECK_THEN_ADD_TO_MASK(G_pressed_button, DOWN_TOUCH_MASK))
 #define MIDDLE_TOUCH_AND_CONSUME (G_middle_touch_cnt > DEFAULT_TOUCH_DBC  && CHECK_THEN_ADD_TO_MASK(G_pressed_button, MIDDLE_TOUCH_MASK))
 #define UP_TOUCH_AND_CONSUME (G_up_touch_cnt > DEFAULT_TOUCH_DBC  && CHECK_THEN_ADD_TO_MASK(G_pressed_button, UP_TOUCH_MASK))
