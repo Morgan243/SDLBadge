@@ -21,6 +21,11 @@ Tested on linux, but should be portable(ish).
 - Sym-link the badge [src/](https://github.com/HackRVA/Harmony-Badge-2018/tree/master/firmware/src) to ./badge_firmware:
     - Change to the directory containing this project (and this README.md file)
     - Run : ```ln -s /path/to/Harmony-Badge-2018/firmware/src ./badge_firmware```
+    
+- Sym-link the badge [src/assets](https://github.com/HackRVA/Harmony-Badge-2018/tree/master/firmware/src/assets) to ./assets:
+    - Same directory as before
+    - Run : ```ln -s /path/to/Harmony-Badge-2018/firmware/src/assets ./assets```
+    
 - Generate a make file:
     - Run: ```cmake CMakeLists.txt```
 - Build
