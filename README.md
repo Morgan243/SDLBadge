@@ -3,15 +3,17 @@
 Useful for debugging game logic and primitive drawing code - but more work needed:
 
 ### What's Working
+- Only 4-bit and 1-bit image blitting implemented
+- Fonts working with 1-bit font
 - Basic inputs (note that responsiveness/update rate isn't well simulated)
 - Primitive drawing
 
 ### What's not Working/Implemented
-- Blitting images/bitmaps, so no sprites and no text
+- Not all image formats supported (2-bit and 8-bit not ported)
 - Audio, IR, LEDs
 
 ## Building and Using
-**Requirements:** CMake, SDL2, GNU Tools/Make stack
+**Requirements:** Badge Firmware, CMake, SDL2, GNU Tools/Make stack
 
 Tested on linux, but should be portable(ish).
 
