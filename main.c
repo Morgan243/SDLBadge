@@ -2,7 +2,7 @@
 #include "SDL2/SDL.h"
 #include "sdl_fb.h"
 #include "sdl_buttons.h"
-//#include "SDL2/SDL_gfxPrimitives.h"
+//#include "SDL2/SDL2_gfxPrimitives.h"
 //#include "SDL2/SDL2_rotozoom.h"
 //#include "SDL2/SDL_image.h"
 #include "badge_apps.h"

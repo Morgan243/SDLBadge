@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include "SDL2/SDL.h"
 #include "sdl_fb.h"
-#include "SDL2_gfxPrimitives.h"
+//#include "SDL2_gfxPrimitives.h"
 #include "SDL2/SDL2_rotozoom.h"
 #include "SDL2/SDL_image.h"
 #include "colors.h"
